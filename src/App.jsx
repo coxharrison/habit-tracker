@@ -5,6 +5,7 @@ import { useNotifications } from './hooks/useNotifications'
 import { HabitCard } from './components/HabitCard'
 import { AddHabitModal } from './components/AddHabitModal'
 import { NotificationSettings } from './components/NotificationSettings'
+import { DailyQuote } from './components/DailyQuote'
 
 function App() {
   const { habits, addHabit, updateHabit, deleteHabit, toggleToday } = useHabits()
@@ -46,6 +47,9 @@ function App() {
             </span>
           </div>
         )}
+
+        {/* Daily quote */}
+        <DailyQuote />
 
         {/* Settings panel */}
         {showSettings && (
