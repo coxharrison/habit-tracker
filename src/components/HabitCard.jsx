@@ -89,7 +89,7 @@ export function HabitCard({ habit, onToggle, onUpdate, onDelete }) {
       {editing && (
         <AddHabitModal
           initial={habit}
-          onSave={(name, color, reminderTime) => onUpdate(habit.id, name, color, reminderTime)}
+          onSave={(name, color, reminderTime, monthlyGoal) => onUpdate(habit.id, name, color, reminderTime, monthlyGoal)}
           onClose={() => setEditing(false)}
         />
       )}

@@ -87,6 +87,7 @@ export function MonthView({ habits }) {
               {habits.map((habit) => {
                 const streak = getCurrentStreak(habit.completions)
                 const rate = getMonthCompletionRate(habit.completions, days)
+                const daysThisMonth = days.filter((d) => habit.completions.includes(d)).length
 
                 return (
                   <tr key={habit.id} className="group">
@@ -131,10 +132,27 @@ export function MonthView({ habits }) {
                     })}
 
                     {/* Stats */}
-                    <td className="pl-2 py-0.5 whitespace-nowrap">
-                      <span className="text-xs text-gray-500">
-                        🔥{streak} · {rate}%
-                      </span>
+                    <td className="pl-2 py-0.5">
+                      {habit.monthlyGoal ? (
+                        <div className="min-w-[64px]">
+                          <span className="text-xs text-gray-500 whitespace-nowrap">
+                            {daysThisMonth}/{habit.monthlyGoal}d
+                          </span>
+                          <div className="w-full bg-gray-200 rounded-full mt-0.5" style={{ height: '4px' }}>
+                            <div
+                              className="rounded-full h-full"
+                              style={{
+                                width: `${Math.min(100, Math.round((daysThisMonth / habit.monthlyGoal) * 100))}%`,
+                                backgroundColor: habit.color,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-500 whitespace-nowrap">
+                          🔥{streak} · {rate}%
+                        </span>
+                      )}
                     </td>
                   </tr>
                 )

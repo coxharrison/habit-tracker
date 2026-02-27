@@ -19,12 +19,13 @@ export function useHabits() {
   }, [])
 
   const addHabit = useCallback(
-    (name, color, reminderTime = null) => {
+    (name, color, reminderTime = null, monthlyGoal = null) => {
       const habit = {
         id: generateId(),
         name,
         color,
         reminderTime,
+        monthlyGoal,
         createdAt: today(),
         completions: [],
       }
@@ -34,9 +35,9 @@ export function useHabits() {
   )
 
   const updateHabit = useCallback(
-    (id, name, color, reminderTime) => {
+    (id, name, color, reminderTime, monthlyGoal = null) => {
       persist(
-        habits.map((h) => (h.id === id ? { ...h, name, color, reminderTime } : h))
+        habits.map((h) => (h.id === id ? { ...h, name, color, reminderTime, monthlyGoal } : h))
       )
     },
     [habits, persist]
