@@ -6,12 +6,14 @@ import { HabitCard } from './components/HabitCard'
 import { AddHabitModal } from './components/AddHabitModal'
 import { NotificationSettings } from './components/NotificationSettings'
 import { DailyQuote } from './components/DailyQuote'
+import { MonthView } from './components/MonthView'
 
 function App() {
   const { habits, addHabit, updateHabit, deleteHabit, toggleToday } = useHabits()
   const { settings, setEnabled } = useNotifications(habits)
   const [showModal, setShowModal] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [activeTab, setActiveTab] = useState('habits')
 
   const todayLabel = format(new Date(), 'EEEE, MMMM d')
   const completedCount = habits.filter((h) =>
@@ -48,48 +50,71 @@ function App() {
           </div>
         )}
 
-        {/* Daily quote */}
-        <DailyQuote />
-
-        {/* Settings panel */}
-        {showSettings && (
-          <div className="mb-4">
-            <NotificationSettings
-              settings={settings}
-              onToggle={setEnabled}
-            />
-          </div>
-        )}
-
-        {/* Habit list */}
-        <div className="space-y-3">
-          {habits.length === 0 ? (
-            <div className="text-center py-16 text-gray-400">
-              <p className="text-4xl mb-3">🌱</p>
-              <p className="text-sm font-medium">No habits yet</p>
-              <p className="text-xs mt-1">Add your first habit below</p>
-            </div>
-          ) : (
-            habits.map((habit) => (
-              <HabitCard
-                key={habit.id}
-                habit={habit}
-                onToggle={toggleToday}
-                onUpdate={updateHabit}
-                onDelete={deleteHabit}
-              />
-            ))
-          )}
+        {/* Tab bar */}
+        <div className="flex rounded-xl bg-gray-100 p-1 mb-5">
+          {['habits', 'month'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition ${
+                activeTab === tab
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {tab === 'habits' ? 'Habits' : 'Month'}
+            </button>
+          ))}
         </div>
 
-        {/* FAB */}
-        <button
-          onClick={() => setShowModal(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg text-2xl flex items-center justify-center hover:bg-indigo-700 active:scale-95 transition"
-          title="Add habit"
-        >
-          +
-        </button>
+        {activeTab === 'habits' ? (
+          <>
+            {/* Daily quote */}
+            <DailyQuote />
+
+            {/* Settings panel */}
+            {showSettings && (
+              <div className="mb-4">
+                <NotificationSettings
+                  settings={settings}
+                  onToggle={setEnabled}
+                />
+              </div>
+            )}
+
+            {/* Habit list */}
+            <div className="space-y-3">
+              {habits.length === 0 ? (
+                <div className="text-center py-16 text-gray-400">
+                  <p className="text-4xl mb-3">🌱</p>
+                  <p className="text-sm font-medium">No habits yet</p>
+                  <p className="text-xs mt-1">Add your first habit below</p>
+                </div>
+              ) : (
+                habits.map((habit) => (
+                  <HabitCard
+                    key={habit.id}
+                    habit={habit}
+                    onToggle={toggleToday}
+                    onUpdate={updateHabit}
+                    onDelete={deleteHabit}
+                  />
+                ))
+              )}
+            </div>
+
+            {/* FAB */}
+            <button
+              onClick={() => setShowModal(true)}
+              className="fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg text-2xl flex items-center justify-center hover:bg-indigo-700 active:scale-95 transition"
+              title="Add habit"
+            >
+              +
+            </button>
+          </>
+        ) : (
+          <MonthView habits={habits} />
+        )}
       </div>
 
       {showModal && (

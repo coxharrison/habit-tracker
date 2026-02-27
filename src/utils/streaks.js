@@ -1,4 +1,4 @@
-import { format, subDays, parseISO, differenceInCalendarDays } from 'date-fns'
+import { format, subDays, parseISO, differenceInCalendarDays, getDaysInMonth, startOfMonth, addDays } from 'date-fns'
 
 function today() {
   return format(new Date(), 'yyyy-MM-dd')
@@ -76,4 +76,12 @@ export function getLast30Days() {
     const date = subDays(new Date(), 29 - i)
     return format(date, 'yyyy-MM-dd')
   })
+}
+
+export function getMonthDays(year, month) {
+  const first = startOfMonth(new Date(year, month, 1))
+  const count = getDaysInMonth(first)
+  return Array.from({ length: count }, (_, i) =>
+    format(addDays(first, i), 'yyyy-MM-dd')
+  )
 }
