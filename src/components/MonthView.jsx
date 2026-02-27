@@ -52,6 +52,8 @@ export function MonthView({ habits }) {
           <p className="text-xs mt-1">Add your first habit on the Habits tab</p>
         </div>
       ) : (
+        <>
+        {/* Heatmap */}
         <div className="overflow-x-auto">
           <table className="w-full border-collapse" style={{ tableLayout: 'fixed' }}>
             <colgroup>
@@ -59,7 +61,6 @@ export function MonthView({ habits }) {
               {days.map((_, i) => (
                 <col key={i} style={{ width: '18px' }} />
               ))}
-              <col style={{ width: '70px' }} />
             </colgroup>
 
             {/* Day-number header */}
@@ -79,104 +80,119 @@ export function MonthView({ habits }) {
                     </th>
                   )
                 })}
-                <th />
               </tr>
             </thead>
 
             <tbody>
-              {habits.map((habit) => {
-                const streak = getCurrentStreak(habit.completions)
-                const rate = getMonthCompletionRate(habit.completions, days)
-                const daysThisMonth = days.filter((d) => habit.completions.includes(d)).length
+              {habits.map((habit) => (
+                <tr key={habit.id}>
+                  {/* Habit name */}
+                  <td className="pr-2 py-0.5">
+                    <div className="flex items-center gap-1.5 overflow-hidden">
+                      <span
+                        className="w-2 h-2 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: habit.color }}
+                      />
+                      <span className="text-xs text-gray-700 truncate leading-none">
+                        {habit.name}
+                      </span>
+                    </div>
+                  </td>
 
-                return (
-                  <tr key={habit.id} className="group">
-                    {/* Habit name */}
-                    <td className="pr-2 py-0.5">
-                      <div className="flex items-center gap-1.5 overflow-hidden">
-                        <span
-                          className="w-2 h-2 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: habit.color }}
+                  {/* Day cells */}
+                  {days.map((d) => {
+                    const dateObj = parseISO(d + 'T12:00:00')
+                    const completed = habit.completions.includes(d)
+                    const future = isFuture(dateObj) && !isToday(dateObj)
+
+                    let bg
+                    if (completed) bg = habit.color
+                    else if (future) bg = '#f3f4f6'
+                    else bg = '#e5e7eb'
+
+                    return (
+                      <td key={d} className="p-px">
+                        <div
+                          className="rounded-sm"
+                          style={{
+                            width: '14px',
+                            height: '14px',
+                            backgroundColor: bg,
+                            opacity: future ? 0.4 : 1,
+                          }}
+                          title={`${habit.name} — ${d}`}
                         />
-                        <span className="text-xs text-gray-700 truncate leading-none">
-                          {habit.name}
-                        </span>
-                      </div>
-                    </td>
-
-                    {/* Day cells */}
-                    {days.map((d) => {
-                      const dateObj = parseISO(d + 'T12:00:00')
-                      const completed = habit.completions.includes(d)
-                      const future = isFuture(dateObj) && !isToday(dateObj)
-
-                      let bg
-                      if (completed) bg = habit.color
-                      else if (future) bg = '#f3f4f6'
-                      else bg = '#e5e7eb'
-
-                      return (
-                        <td key={d} className="p-px">
-                          <div
-                            className="rounded-sm"
-                            style={{
-                              width: '14px',
-                              height: '14px',
-                              backgroundColor: bg,
-                              opacity: future ? 0.4 : 1,
-                            }}
-                            title={`${habit.name} — ${d}`}
-                          />
-                        </td>
-                      )
-                    })}
-
-                    {/* Stats */}
-                    <td className="pl-2 py-0.5">
-                      {habit.monthlyGoal ? (
-                        <div className="min-w-[64px]">
-                          <span className="text-xs text-gray-500 whitespace-nowrap">
-                            {daysThisMonth}/{habit.monthlyGoal}d
-                          </span>
-                          <div className="w-full bg-gray-200 rounded-full mt-0.5" style={{ height: '4px' }}>
-                            <div
-                              className="rounded-full h-full"
-                              style={{
-                                width: `${Math.min(100, Math.round((daysThisMonth / habit.monthlyGoal) * 100))}%`,
-                                backgroundColor: habit.color,
-                              }}
-                            />
-                          </div>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-500 whitespace-nowrap">
-                          🔥{streak} · {rate}%
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                )
-              })}
+                      </td>
+                    )
+                  })}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
-      )}
 
-      {/* Legend */}
-      <div className="flex items-center gap-3 mt-4 text-xs text-gray-400">
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-sm bg-indigo-500" />
-          <span>Done</span>
+        {/* Legend */}
+        <div className="flex items-center gap-3 mt-3 mb-5 text-xs text-gray-400">
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded-sm bg-indigo-500" />
+            <span>Done</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded-sm bg-gray-300" />
+            <span>Missed</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded-sm bg-gray-100 opacity-40 border border-gray-200" />
+            <span>Future</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-sm bg-gray-300" />
-          <span>Missed</span>
+
+        {/* Progress block */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm divide-y divide-gray-50">
+          {habits.map((habit) => {
+            const streak = getCurrentStreak(habit.completions)
+            const rate = getMonthCompletionRate(habit.completions, days)
+            const daysThisMonth = days.filter((d) => habit.completions.includes(d)).length
+            const goalPct = habit.monthlyGoal
+              ? Math.min(100, Math.round((daysThisMonth / habit.monthlyGoal) * 100))
+              : null
+
+            return (
+              <div key={habit.id} className="px-4 py-3">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: habit.color }}
+                    />
+                    <span className="text-sm font-medium text-gray-700">{habit.name}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-gray-400">
+                    <span>🔥 {streak} streak</span>
+                    {habit.monthlyGoal ? (
+                      <span className="font-medium text-gray-600">
+                        {daysThisMonth}/{habit.monthlyGoal} days · {goalPct}%
+                      </span>
+                    ) : (
+                      <span>{rate}% this month</span>
+                    )}
+                  </div>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full" style={{ height: '6px' }}>
+                  <div
+                    className="rounded-full h-full transition-all"
+                    style={{
+                      width: `${habit.monthlyGoal ? goalPct : rate}%`,
+                      backgroundColor: habit.color,
+                    }}
+                  />
+                </div>
+              </div>
+            )
+          })}
         </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-sm bg-gray-100 opacity-40 border border-gray-200" />
-          <span>Future</span>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   )
 }
